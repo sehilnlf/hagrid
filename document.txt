@@ -1,0 +1,18 @@
+train/test: 
+	run.py
+	python run.py -c train -p configs/<config>
+	python run.py -c test -p configs/<config>
+
+detection:
+	demo.py
+	python demo.py -p configs/RetinaNet_ResNet50.yaml --landmarks
+	
+
+classification:
+	demo_ff.py
+	python demo_ff.py -p configs/ResNeXt50.yaml
+
+
+demo_combine.py: kết hợp detect và classify 2 model có trong config
+test_architecture_model copy.py: to read and inference yolov7tiny file
+run_file_yolov10x.py

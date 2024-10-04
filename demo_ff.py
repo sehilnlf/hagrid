@@ -61,8 +61,14 @@ class Demo:
             if ret:
                 processed_frame, size = Demo.preprocess(frame)
                 with torch.no_grad():
+<<<<<<< Updated upstream
                     output = classifier(processed_frame)
                 label = output["gesture"].argmax(dim=1)
+=======
+                    output = classifier([processed_frame])
+                print(output)
+                label = output["labels"].argmax(dim=1)
+>>>>>>> Stashed changes
 
                 cv2.putText(
                     frame, targets[int(label) + 1], (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), thickness=3

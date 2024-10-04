@@ -80,10 +80,16 @@ class Demo:
             if ret:
                 processed_frame, size, padded_size = Demo.preprocess(frame)
                 with torch.no_grad():
+<<<<<<< Updated upstream
                     output = detector(processed_frame)[0]
+=======
+                    output = detector([processed_image])[0]
+
+>>>>>>> Stashed changes
                 boxes = output["boxes"][:num_hands]
                 scores = output["scores"][:num_hands]
                 labels = output["labels"][:num_hands]
+
                 if landmarks:
                     results = hands.process(frame[:, :, ::-1])
                     if results.multi_hand_landmarks:
@@ -98,6 +104,7 @@ class Demo:
                 for i in range(min(num_hands, len(boxes))):
                     if scores[i] > threshold:
                         width, height = size
+<<<<<<< Updated upstream
                         padded_width, padded_height = padded_size
                         scale = max(width, height) / 320
 
@@ -105,9 +112,16 @@ class Demo:
                         padding_h = abs(padded_height - height) // (2 * scale)
 
                         x1 = int((boxes[i][0] - padding_w) * scale)
+=======
+                        scale = max(width, height) / conf.LongestMaxSize.max_size
+                        padding_w = abs(conf.PadIfNeeded.min_width - width // scale) // 2
+                        padding_h = abs(conf.PadIfNeeded.min_height - height // scale) // 2
+                        x1 = int((boxes[i][0].item() - padding_w) * scale)
+>>>>>>> Stashed changes
                         y1 = int((boxes[i][1] - padding_h) * scale)
                         x2 = int((boxes[i][2] - padding_w) * scale)
                         y2 = int((boxes[i][3] - padding_h) * scale)
+
                         cv2.rectangle(frame, (x1, y1), (x2, y2), COLOR, thickness=3)
                         cv2.putText(
                             frame,
@@ -145,6 +159,7 @@ def parse_arguments(params: Optional[Tuple] = None) -> argparse.Namespace:
 
 if __name__ == "__main__":
     args = parse_arguments()
+<<<<<<< Updated upstream
     conf = OmegaConf.load(args.path_to_config)
     model = build_model(
         model_name=conf.model.name,
@@ -157,3 +172,17 @@ if __name__ == "__main__":
     model.eval()
     if model is not None:
         Demo.run(model, num_hands=100, threshold=0.8, landmarks=args.landmarks)
+=======
+
+    # config
+    conf = OmegaConf.load(args.path_to_config) # OmegaConf ~ to load yaml file
+    model = build_model(conf)
+    transform = Demo.get_transform_for_inf(conf.test_transforms)
+    if conf.model.checkpoint is not None:
+        snapshot = torch.load(conf.model.checkpoint, map_location=torch.device("cpu"))
+        model.load_state_dict(snapshot["MODEL_STATE"])
+
+    model.eval()
+    if model is not None:
+        Demo.run(model, transform, conf.test_transforms, num_hands=100, threshold=0.36, landmarks=args.landmarks)
+>>>>>>> Stashed changes
